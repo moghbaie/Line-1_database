@@ -22,14 +22,14 @@ for(pmid in papers$pubMedID){
     # We build the URL to retrieve the citing pmids
     path <- paste("https://www.ncbi.nlm.nih.gov/pubmed?linkname=pubmed_pubmed_citedin&from_uid=",
                   pmid,
-                  "&report=uilist&format=text&dispmax=2000", sep="")
+                  "&report=uilist&format=text&dispmax=200", sep="")
     f <- file(path)
     data <- readLines(f, warn = F)
     citing <-strsplit(xmlToList(xmlParse(data, asText = T))[1], "\n")[[1]]
     close(f)
     
     # Then we create a table containing ll these pmids
-    if(length(citing) < 2000){
+    if(length(citing) < 200){
       for(pm in citing){
         citegraph <- rbind(citegraph, data.frame(pmid=as.numeric(pmid), citing=as.numeric(pm)))
       }
@@ -73,4 +73,6 @@ cite_pmid$pubdate <- format(
   "%Y")
 
 colfunc<-colorRampPalette(c("white","red"))
-barplot(as.matrix(table(cite_pmid)), col = (colfunc(20)))
+jpeg('Image/citation_distribution_Year.jpg')
+barplot(as.matrix(table(cite_pmid)), main="Citation distribution among Line1 papers during years", col = (colfunc(20)))
+dev.off()
